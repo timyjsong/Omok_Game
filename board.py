@@ -1,5 +1,6 @@
 import tkinter as tk
 from square import Square
+from piece import Piece
 
 class Board(tk.Canvas):
 
@@ -14,17 +15,17 @@ class Board(tk.Canvas):
         self.squares = self.init_squares()
         self.draw_border()
         self.draw_squares()
-        # self.create_rectangle(0, 0, 1200, 1200, fill="green")
+
+    @property
+    def square_len(self):
+        return self.board_size // self.total_squares
 
     @property
     def total_board_size(self):
-        square_len = self.board_size // self.total_squares
-        return self.board_size + square_len
+        return self.board_size + self.square_len
 
     def draw_border(self):
-        square_len = self.board_size // self.total_squares
-        border_size = self.board_size + square_len
-        coords = (0, 0, 1200, 1200)
+        coords = (0, 0, self.total_board_size, self.total_board_size)
         self.create_rectangle(*coords, fill="#8C5024")
 
     def init_squares(self):
@@ -37,9 +38,23 @@ class Board(tk.Canvas):
         return squares
 
     def left_click(self, event):
-        print(event.x, event.y)
+        square = self.find_square(event.x, event.y)
+        corner = square.find_corner(event.x, event.y)
+        # color = "black" if not self.turn % 2 else "white"
+        piece = Piece(self, *corner, "black")
+        piece.draw()
+        print(f"corner: {corner}")
 
     def draw_squares(self):
         for square in self.squares:
             square.draw()
+
+    def find_square(self, c_x, c_y):
+        for square in self.squares:
+            if square.in_square(c_x, c_y):
+                break
+        else:
+            raise Exception("Square not found")
+
+        return square
 
