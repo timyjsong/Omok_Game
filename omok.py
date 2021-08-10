@@ -14,6 +14,7 @@ board size: 19 x 19
 
 def main():
     root = tk.Tk()
+    root.geometry("900x900")
     board = Board(root, 840) # 14 x 60 = 840
     root.mainloop()
 

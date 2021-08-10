@@ -14,11 +14,11 @@ class Square(object):
 
     @property
     def x_1(self):
-        return self.side_len * self.col
+        return self.side_len * self.col + (self.side_len / 2)
 
     @property
     def y_1(self):
-        return self.side_len * self.row
+        return self.side_len * self.row + (self.side_len / 2)
 
     @property
     def x_2(self):
