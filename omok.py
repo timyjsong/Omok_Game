@@ -2,6 +2,9 @@
 
 import tkinter as tk
 from board import Board
+from game_logger import LOGGER
+
+LOGGER = LOGGER.get_logger("omok")
 
 
 class Window(tk.Tk):
@@ -16,6 +19,7 @@ class Window(tk.Tk):
 
 def main():
     """ Main"""
+    LOGGER.debug("Creating game window via main")
 
     window = Window(900)
     window.mainloop()

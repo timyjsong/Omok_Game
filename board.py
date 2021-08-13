@@ -4,6 +4,9 @@
 import tkinter as tk
 from square import Square
 from piece import Piece
+from game_logger import LOGGER
+
+LOGGER = LOGGER.get_logger("board")
 
 
 class Board(tk.Canvas):
@@ -53,11 +56,18 @@ class Board(tk.Canvas):
         print(f"turn: {color}")
 
         square = self.find_square(event.x, event.y)
-        corner = square.find_corner(event.x, event.y)
+        try:
+            corner = square.find_corner(event.x, event.y)
+        except Exception as error:
+            LOGGER.exception(error)
+            raise error
 
         piece = Piece(self, *corner, color)
-        if self.does_piece_exist(piece.corner):
-            raise Exception("Piece already exists there")
+        try:
+            self.piece_exist(piece.corner)
+        except Exception as error:
+            LOGGER.exception(error)
+            raise error
 
         piece.draw()
         self.pieces.append(piece)
@@ -78,12 +88,9 @@ class Board(tk.Canvas):
 
         raise Exception("Square not found")
 
-    def does_piece_exist(self, corner):
+    def piece_exist(self, corner):
         """ checker to see if piece already exists on a specific board location"""
 
         for piece in self.pieces:
-            print(f"p1: {piece.corner}, p2: {corner}")
             if piece.corner == corner:
-                return True
-
-        return False
+                raise Exception("Piece already exists there")

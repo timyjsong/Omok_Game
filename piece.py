@@ -1,4 +1,7 @@
 """ Module for Piece class to keep track of coordinates """
+from game_logger import LOGGER
+
+LOGGER = LOGGER.get_logger("piece")
 
 
 class Piece:
