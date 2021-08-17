@@ -1,7 +1,4 @@
 """ Module for Square class"""
-from game_logger import LOGGER
-
-LOGGER = LOGGER.get_logger("square")
 
 
 class Square:

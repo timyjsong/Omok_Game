@@ -4,9 +4,6 @@
 import tkinter as tk
 from square import Square
 from piece import Piece
-from game_logger import LOGGER
-
-LOGGER = LOGGER.get_logger("board")
 
 
 class Board(tk.Canvas):
@@ -14,9 +11,11 @@ class Board(tk.Canvas):
 
     total_squares = 14
 
-    def __init__(self, master, window_size):
+    def __init__(self, master, window_size, logger):
         self.master = master
         self.window_size = window_size
+        self.logger = logger.get_logger("board")
+
         self.board_size = (window_size * 14) / 15
         super().__init__(master, width=window_size, height=window_size)
         self.bind("<Button-1>", self.left_click)
@@ -59,14 +58,14 @@ class Board(tk.Canvas):
         try:
             corner = square.find_corner(event.x, event.y)
         except Exception as error:
-            LOGGER.exception(error)
+            self.logger.exception(error)
             raise error
 
         piece = Piece(self, *corner, color)
         try:
             self.piece_exist(piece.corner)
         except Exception as error:
-            LOGGER.exception(error)
+            self.logger.exception(error)
             raise error
 
         piece.draw()

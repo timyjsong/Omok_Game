@@ -13,7 +13,7 @@ class Window(tk.Tk):
     def __init__(self, window_size):
         super().__init__()
         self.geometry(f"{window_size}x{window_size}")
-        board = Board(self, window_size)
+        board = Board(self, window_size, LOGGER)
         board.pack()
 
 
