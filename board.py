@@ -10,6 +10,7 @@ class Board(tk.Canvas):
     """ Class for Board"""
 
     total_squares = 14
+    gameover = False
 
     def __init__(self, master, window_size, logger):
         self.master = master
@@ -51,6 +52,9 @@ class Board(tk.Canvas):
     def left_click(self, event):
         """ following certain playable rules, draws pieces onto the board upon left click"""
 
+        if self.gameover:
+            return
+
         color = "black" if not self.turn % 2 else "white"
         print(f"turn: {color}")
 
@@ -68,8 +72,12 @@ class Board(tk.Canvas):
             self.logger.exception(error)
             raise error
 
+        self.logger.info(f"{piece.center}")
+
         piece.draw()
         self.pieces.append(piece)
+        self.gameover = self.check_win()
+
         self.turn += 1
 
     def draw_squares(self):
@@ -81,11 +89,65 @@ class Board(tk.Canvas):
     def find_square(self, c_x, c_y):
         """ given x and y coordinate, finds which square the left_click is in"""
 
+        ret = None
+        self.logger.debug(f"find square, X: {c_x}, Y: {c_y}")
         for square in self.squares:
             if square.in_square(c_x, c_y):
                 return square
 
+        t_x, t_y = self.find_border(c_x, c_y)
+        for square in self.squares:
+            if square.in_square(t_x, t_y):
+                return square
+
         raise Exception("Square not found")
+
+    def find_border(self, c_x, c_y):
+        """ given that left_click has occurred on the border, finds the closest corner"""
+
+        sq_len = self.square_len
+        window_size = self.window_size
+        board_size = self.board_size
+        t_x = c_x
+        t_y = c_y
+
+        # finding which side of the border left_click occurred
+        if c_x < (sq_len / 2):
+            # x is on left border
+            if c_y < (sq_len / 2):
+                # y is on top border
+                t_x = sq_len - c_x
+                t_y = sq_len - c_y
+            elif c_y > (window_size - (sq_len / 2)):
+                # y is on bottom border
+                t_x = sq_len - c_x
+                t_y = (2 * board_size) + sq_len - c_y
+            else:
+                # y is on the board
+                t_x = sq_len - c_x
+        elif c_x > (window_size - (sq_len / 2)):
+            # x is on right border
+            if c_y > (window_size - (sq_len / 2)):
+                # y is on bottom border
+                t_x = (2 * board_size) + sq_len - c_x
+                t_y = (2 * board_size) + sq_len - c_y
+            elif c_y < (sq_len / 2):
+                # y is on top
+                t_x = (2 * board_size) + sq_len - c_x
+                t_y = sq_len - c_y
+            else:
+                # y is on the board
+                t_x = (2 * board_size) + sq_len - c_x
+        else:
+            # x is on board
+            if c_y < (sq_len / 2):
+                # y is on top border
+                t_y = sq_len - c_y
+            else:
+                # y is on bottom border
+                t_y = (2 * board_size) + sq_len - c_y
+
+        return t_x, t_y
 
     def piece_exist(self, corner):
         """ checker to see if piece already exists on a specific board location"""
@@ -93,3 +155,6 @@ class Board(tk.Canvas):
         for piece in self.pieces:
             if piece.corner == corner:
                 raise Exception("Piece already exists there")
+
+    def check_win(self):
+        return False

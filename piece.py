@@ -21,37 +21,54 @@ class Piece:
         return round(self.c_x, 4), round(self.c_y, 4)
 
     @property
-    def offset(self):
+    def spacing(self):
         """
-        returns the offset which will be used to create
+        returns the spacing which will be used to create
         spacing between adjacent pieces
         """
 
         return self.canvas.square_len * self.piece_size
 
+    # @property
+    # def offset(self):
+    #     """ returns the offset of the border"""
+    #
+    #     return self.canvas.square_len / 2
+
+    @property
+    def center(self):
+        """ returns the coordinates of the piece in row/col format"""
+
+        row_coord = self.c_x - (self.canvas.square_len / 2)
+        row = round(row_coord / self.canvas.square_len)
+        col_coord = self.c_y - (self.canvas.square_len / 2)
+        col = round(col_coord / self.canvas.square_len)
+
+        return row, col
+
     @property
     def x_1(self):
         """ top left x coordinate of the piece"""
 
-        return self.c_x - self.offset
+        return self.c_x - self.spacing
 
     @property
     def y_1(self):
         """ top left y coordinate of the piece"""
 
-        return self.c_y - self.offset
+        return self.c_y - self.spacing
 
     @property
     def x_2(self):
         """ bottom right x coordinate of the piece"""
 
-        return self.c_x + self.offset
+        return self.c_x + self.spacing
 
     @property
     def y_2(self):
         """ bottom right y coordinate of the piece"""
 
-        return self.c_y + self.offset
+        return self.c_y + self.spacing
 
     @property
     def coords(self):
