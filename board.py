@@ -1,34 +1,45 @@
+""" Module for Board class"""
+# pylint: disable=too-many-ancestors
+
 import tkinter as tk
 from square import Square
 from piece import Piece
 
+
 class Board(tk.Canvas):
+    """ Class for Board"""
 
     total_squares = 14
 
-    def __init__(self, master, board_size):
+    def __init__(self, master, window_size, logger):
         self.master = master
-        self.board_size = board_size
-        super().__init__(master, width=self.total_board_size, height=self.total_board_size)
+        self.window_size = window_size
+        self.logger = logger.get_logger("board")
+
+        self.board_size = (window_size * 14) / 15
+        super().__init__(master, width=window_size, height=window_size)
         self.bind("<Button-1>", self.left_click)
-        self.pack()
+        self.turn = 0
+        self.pieces = []
         self.squares = self.init_squares()
         self.draw_border()
         self.draw_squares()
 
     @property
     def square_len(self):
-        return self.board_size // self.total_squares
+        """ returns the length of one square"""
 
-    @property
-    def total_board_size(self):
-        return self.board_size + self.square_len
+        return self.board_size / self.total_squares
 
     def draw_border(self):
-        coords = (0, 0, self.total_board_size, self.total_board_size)
+        """ given a canvas, draws a border around the playable squares"""
+
+        coords = (0, 0, self.window_size, self.window_size)
         self.create_rectangle(*coords, fill="#8C5024")
 
     def init_squares(self):
+        """ returns a list of squares in which the board will be made out"""
+
         squares = []
         for row in range(14):
             for col in range(14):
@@ -38,23 +49,47 @@ class Board(tk.Canvas):
         return squares
 
     def left_click(self, event):
+        """ following certain playable rules, draws pieces onto the board upon left click"""
+
+        color = "black" if not self.turn % 2 else "white"
+        print(f"turn: {color}")
+
         square = self.find_square(event.x, event.y)
-        corner = square.find_corner(event.x, event.y)
-        # color = "black" if not self.turn % 2 else "white"
-        piece = Piece(self, *corner, "black")
+        try:
+            corner = square.find_corner(event.x, event.y)
+        except Exception as error:
+            self.logger.exception(error)
+            raise error
+
+        piece = Piece(self, *corner, color)
+        try:
+            self.piece_exist(piece.corner)
+        except Exception as error:
+            self.logger.exception(error)
+            raise error
+
         piece.draw()
-        print(f"corner: {corner}")
+        self.pieces.append(piece)
+        self.turn += 1
 
     def draw_squares(self):
+        """ fills in an empty board/canvas with playable squares"""
+
         for square in self.squares:
             square.draw()
 
     def find_square(self, c_x, c_y):
+        """ given x and y coordinate, finds which square the left_click is in"""
+
         for square in self.squares:
             if square.in_square(c_x, c_y):
-                break
-        else:
-            raise Exception("Square not found")
+                return square
 
-        return square
+        raise Exception("Square not found")
 
+    def piece_exist(self, corner):
+        """ checker to see if piece already exists on a specific board location"""
+
+        for piece in self.pieces:
+            if piece.corner == corner:
+                raise Exception("Piece already exists there")
