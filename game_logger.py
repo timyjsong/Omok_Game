@@ -140,16 +140,3 @@ class Logger:
 
 
 LOGGER = Logger("game")
-
-
-def main():
-    logger = Logger("shit")
-    logger.debug("shit this the debug")
-    logger.error("shit bruh error came up")
-    logger.info("shit man this be the info")
-    logger.critical("critical shit")
-    logger.warning("warning i gotta shit")
-
-
-if __name__ == "__main__":
-    main()
