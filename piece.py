@@ -29,19 +29,13 @@ class Piece:
 
         return self.canvas.square_len * self.piece_size
 
-    # @property
-    # def offset(self):
-    #     """ returns the offset of the border"""
-    #
-    #     return self.canvas.square_len / 2
-
     @property
     def center(self):
         """ returns the coordinates of the piece in row/col format"""
 
-        row_coord = self.c_x - (self.canvas.square_len / 2)
+        row_coord = self.c_y - (self.canvas.square_len / 2)
         row = round(row_coord / self.canvas.square_len)
-        col_coord = self.c_y - (self.canvas.square_len / 2)
+        col_coord = self.c_x - (self.canvas.square_len / 2)
         col = round(col_coord / self.canvas.square_len)
 
         return row, col

@@ -1,7 +1,8 @@
 """ Module for Board class"""
-# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors, too-many-instance-attributes
 
 import tkinter as tk
+
 from square import Square
 from piece import Piece
 
@@ -72,11 +73,11 @@ class Board(tk.Canvas):
             self.logger.exception(error)
             raise error
 
-        self.logger.info(f"{piece.center}")
+        self.logger.info(f"{piece.color} placed: {piece.center}")
 
         piece.draw()
         self.pieces.append(piece)
-        self.gameover = self.check_win()
+        self.gameover = self.check_win(piece)
 
         self.turn += 1
 
@@ -89,8 +90,6 @@ class Board(tk.Canvas):
     def find_square(self, c_x, c_y):
         """ given x and y coordinate, finds which square the left_click is in"""
 
-        ret = None
-        self.logger.debug(f"find square, X: {c_x}, Y: {c_y}")
         for square in self.squares:
             if square.in_square(c_x, c_y):
                 return square
@@ -156,5 +155,69 @@ class Board(tk.Canvas):
             if piece.corner == corner:
                 raise Exception("Piece already exists there")
 
-    def check_win(self):
+    def check_win(self, piece):
+        """ checks if recently placed piece satisfies the win condition"""
+
+        vectors = [(-1, 0), (-1, 1), (0, 1), (1, 1)]
+
+        pos_list = []
+
+        for i in range(4):
+            row, col = vectors[i]
+            temp_list = self.get_possible_moves(piece, row, col)
+            pos_list.append(temp_list[::-1])
+            pos_list[i].append(piece.center)
+            row, col = 0 - row, 0 - col
+            temp_list = self.get_possible_moves(piece, row, col)
+            pos_list[i] += temp_list
+
+        for index in range(4):
+            if self.is_five_in_row(pos_list[index]):
+                self.logger.debug(f"{piece.color} HAS WON")
+                return True
+
         return False
+
+    @staticmethod
+    def get_possible_moves(piece, row_delta, col_delta, total=5):
+        """ given row and col delta, returns the possible moves"""
+
+        row, col = piece.center
+        ret_list = []
+        for _ in range(total):
+            row, col = row + row_delta, col + col_delta
+            ret_list.append((row, col))
+
+        return ret_list
+
+    def is_five_in_row(self, pos_list):
+        """ returns whether or not list of colors are 5 in a row"""
+
+        color_list = []
+        for pos in pos_list:
+            color = self.find_piece(*pos)
+            color_list.append(color)
+
+        target_color = color_list[5]    # color of the last placed piece
+        for index in range(7):
+            if color_list[index] == target_color:
+                counter = 1
+                for index_2 in range(index + 1, 11):
+                    if color_list[index_2] == target_color:
+                        counter += 1
+                    else:
+                        break
+                if counter == 5:
+                    return True
+        return False
+
+    def find_piece(self, row, col):
+        """ given row and col, returns the color of the piece, else returns None"""
+
+        color = None
+        for piece in self.pieces:
+            if piece.center == (row, col):
+                color = piece.color
+                break
+
+        return color
